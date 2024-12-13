@@ -1,0 +1,12 @@
+[
+    {
+        "connName": "",
+        "host": "",
+        "port": 0,
+        "user": "",
+        "pass": "",
+        "db": "",
+        "dbType": "",
+        "dumpDir": ""
+    }
+]
