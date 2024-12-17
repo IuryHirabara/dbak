@@ -1,12 +1,18 @@
-[
-    {
-        "connName": "",
-        "host": "",
-        "port": 0,
-        "user": "",
-        "pass": "",
-        "db": "",
-        "dbType": "",
-        "dumpDir": ""
-    }
-]
+{
+    "connections": [
+        {
+            "connName": "local",
+            "host": "127.0.0.1",
+            "port": "3306",
+            "user": "root",
+            "pass": "",
+            "dbType": "mysql",
+            "databases": [
+                "db1",
+                "db2",
+                "db3"
+            ]
+        }
+    ],
+    "dumpDir": "/home/user/dumps"
+}
