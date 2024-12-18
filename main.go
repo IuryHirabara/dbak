@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/JamesStewy/go-mysqldump"
@@ -33,10 +34,28 @@ func main() {
 	}
 	wg.Add(limit)
 
+	dbsToExclude := strings.Split(
+		configs.GetFlagValue(configs.Flags, "-ed", ""),
+		",",
+	)
+	connsToExclude := strings.Split(
+		configs.GetFlagValue(configs.Flags, "-ec", ""),
+		",",
+	)
 	for _, conn := range connections {
+		if isToExclude(connsToExclude, conn.ConnName) {
+			markAsDone(len(conn.Databases), &wg)
+			continue
+		}
+
 		baseStrConn := createBaseStrConn(&conn)
 
 		for _, dbName := range conn.Databases {
+			if isToExclude(dbsToExclude, dbName) {
+				wg.Done()
+				continue
+			}
+
 			strConn := fmt.Sprintf(baseStrConn, dbName)
 			db, err := createConn(strConn)
 			if err != nil {
@@ -77,6 +96,22 @@ func createBaseStrConn(conn *configs.Connection) (baseStrConn string) {
 	}
 
 	return baseStrConn + "/%s?charset=utf8&parseTime=True&loc=Local"
+}
+
+func isToExclude(valuesToExclude []string, value string) bool {
+	for _, valueToExclude := range valuesToExclude {
+		if value == valueToExclude {
+			return true
+		}
+	}
+
+	return false
+}
+
+func markAsDone(qty int, wg *sync.WaitGroup) {
+	for i := 0; i < qty; i++ {
+		wg.Done()
+	}
 }
 
 func createConn(strConn string) (*sql.DB, error) {
