@@ -23,12 +23,13 @@ type Connection struct {
 
 var (
 	Config Configuration
+	Flags  map[int]map[string]string
 )
 
 func Load() error {
-	flags := getFlags()
+	Flags = getFlags()
 
-	filename := getFlagValue(flags, "-cf", "./config.json")
+	filename := GetFlagValue(Flags, "-cf", "./config.json")
 	fileInBytes, err := os.ReadFile(filename)
 	if err != nil {
 		return err
@@ -37,6 +38,11 @@ func Load() error {
 	err = json.Unmarshal(fileInBytes, &Config)
 	if err != nil {
 		return err
+	}
+
+	dumpDir := GetFlagValue(Flags, "-dp", "")
+	if dumpDir != "" {
+		Config.DumpDir = dumpDir
 	}
 
 	return nil
@@ -67,7 +73,7 @@ func getFlags() (flags map[int]map[string]string) {
 	return flags
 }
 
-func getFlagValue(flags map[int]map[string]string, flag, defaultValue string) string {
+func GetFlagValue(flags map[int]map[string]string, flag, defaultValue string) string {
 	for _, arg := range flags {
 		switch arg["flag"] {
 		case flag:
