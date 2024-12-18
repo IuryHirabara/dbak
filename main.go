@@ -14,6 +14,12 @@ import (
 )
 
 func main() {
+	args := os.Args
+	if len(args) < 2 || args[1] != "run" {
+		showMenu()
+		return
+	}
+
 	err := configs.Load()
 	if err != nil {
 		log.Fatalln(err)
@@ -73,6 +79,30 @@ func main() {
 	wg.Wait()
 }
 
+func showMenu() {
+	fmt.Println(`Dbak is a tool to dump MySQL databases.
+
+Usage:
+	
+        dbak run [arguments]
+
+The arguments are:
+
+        -cf        change config file to another. must be absolute path
+        -dp        change dump dir to another. must be absolute path
+        -ed        ignore databases by database name, separate by ','
+        -ec        ignore connections by name, separate by ','
+	
+Example:
+	        
+        dbak run -cf=/home/user/myconf.json -ed=db1,db2
+
+Config file example can be found on https://github.com/IuryHirabara/dbak/blob/main/config.example.json
+
+To run Dbak, the current directory must have a config.json at root or the config file must be provided with '-cf' flag.
+	`)
+}
+
 func checkIfDirExists(dir string) error {
 	fileInfo, err := os.Stat(dir)
 	if err != nil {
@@ -130,7 +160,7 @@ func createConn(strConn string) (*sql.DB, error) {
 func dump(db *sql.DB, connName, dbName string, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	fmt.Printf("Dump do banco '%s' iniciado\n", dbName)
+	fmt.Printf("Dump of database '%s' begin\n", dbName)
 
 	fileFormat := fmt.Sprintf("%s-%s-20060102-150405", connName, dbName)
 	dumper, err := mysqldump.Register(db, configs.Config.DumpDir, fileFormat)
@@ -146,5 +176,5 @@ func dump(db *sql.DB, connName, dbName string, wg *sync.WaitGroup) {
 		return
 	}
 
-	fmt.Printf("Dump do banco '%s' concluído: %s\n", dbName, resultFilename)
+	fmt.Printf("Dump of database '%s' end: %s\n", dbName, resultFilename)
 }

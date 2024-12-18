@@ -50,7 +50,7 @@ func Load() error {
 
 func getFlags() (flags map[int]map[string]string) {
 	flags = map[int]map[string]string{}
-	args := os.Args[1:]
+	args := os.Args[2:]
 	for i, arg := range args {
 		flagValue := strings.Split(arg, "=")
 		if len(flagValue) < 2 {
